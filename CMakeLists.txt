@@ -1,18 +1,28 @@
 cmake_minimum_required(VERSION 3.4.0)
 
+project(VRender VERSION 0.1.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     message("Enabling vulkan validation layers")
     add_compile_definitions(USEVKVALIDATIONLAYER _DEBUG)
 endif()
 
-
-
-
-add_compile_definitions(TINYEXR_USE_MINIZ)  # enables usage of miniz for opening exr images
-add_compile_definitions(USE_SHADERC)        # enables shader compilation via shaderc
-
-
-
 find_package(Vulkan REQUIRED)
 find_package(Threads REQUIRED)
+
+
+add_subdirectory(submodules/glfw)
+add_subdirectory(submodules/glm)
+add_subdirectory(submodules/spirv-reflect)
+add_subdirectory(submodules/VulkanMemoryAllocator)
+
+
+add_subdirectory(Engine)
+add_subdirectory(examples)
