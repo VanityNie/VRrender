@@ -28,3 +28,10 @@
 [submodule "submodules/tinyddsloader"]
 	path = submodules/tinyddsloader
 	url = https://github.com/benikabocha/tinyddsloader
+
+[submodule "submodules/spirv-cross"]
+	path = submodules/spirv-cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "submodules/spdlog"]
+	path = submodules/spdlog
+	url = https://github.com/gabime/spdlog.git
