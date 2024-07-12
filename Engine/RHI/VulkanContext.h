@@ -66,6 +66,8 @@ private:
 
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     PhyscialDeviceContext physcial_device_context;
+    std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
 
     bool enable_validation_layers;
     const std::vector<const char*> validation_layers_lst = {"VK_LAYER_KHRONOS_validation"};
@@ -73,7 +75,7 @@ private:
     bool check_validation_layer_support();
 
     SwapChianContext swap_chian_context;
-
+    void create_surface();
 
     //debug
     VkResult vkExt_create_debug_messenger(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -109,6 +111,23 @@ public:
                                                          void* pUserData);
 
 };
+
+
+
+inline void check(VkResult result, const char* msg = 0) {
+    if (result != VK_SUCCESS && msg) {
+        LOG_ERROR(msg);
+    }
+}
+
+template <std::size_t Size>
+inline void check(std::array<VkResult, Size> results, const char* msg = 0) {
+    for (const auto& result : results) {
+        if (result != VK_SUCCESS && msg) {
+            LOG_ERROR(msg);
+        }
+    }
+}
 
 
 #endif //VULKANABSTRACTIONLAYER_VULKANCONTEXT_H

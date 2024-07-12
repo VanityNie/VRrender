@@ -54,8 +54,12 @@ void VulkanContext::create_instance() {
         instance_CI.pNext = nullptr;
     }
 
-    vkCreateInstance(&instance_CI,nullptr,&instance);
+    //vkCreateInstance(&instance_CI,nullptr,&instance);
+    check(vkCreateInstance(&instance_CI,nullptr,&instance),"Failed to crate Instance");
 
+    if(enable_validation_layers && !check_validation_layer_support()) {
+        LOG_ERROR("Validation layers requested, but not available!");
+    }
 }
 
 /*
@@ -128,8 +132,25 @@ VkBool32 VulkanContext::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT me
 
 }
 
+void VulkanContext::create_surface() {
+
+    check(
+        glfwCreateWindowSurface(this->instance,window_ptr,nullptr,&swap_chian_context.surface),
+        "Failed to create window surface");
+
+}
+
 
 void VulkanContext::pick_up_physical_device() {
+    uint32_t device_cnt = 0;
+    vkEnumeratePhysicalDevices(instance,&device_cnt,nullptr);
+    if(device_cnt==0) {
+        LOG_ERROR("Failed to find GPUs with Vulkan support");
+    }
+
+    std::vector<VkPhysicalDevice> devices(device_cnt);
+    vkEnumeratePhysicalDevices(instance, &device_cnt, devices.data());
+
 
 }
 
