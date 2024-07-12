@@ -3,6 +3,8 @@
 //
 #include "VulkanContext.h"
 
+#include "../../submodules/glfw/src/null_joystick.h"
+
 
 VulkanContext::VulkanContext(Windows *windows) {
 
@@ -11,6 +13,7 @@ VulkanContext::VulkanContext(Windows *windows) {
 
 
 }
+
 
 void VulkanContext::create_instance() {
     VkApplicationInfo app_info{};
@@ -33,15 +36,31 @@ void VulkanContext::create_instance() {
     if (enable_validation_layers) {
         instance_CI.enabledLayerCount = static_cast<uint32_t>(validation_layers_lst.size());
         instance_CI.ppEnabledLayerNames = validation_layers_lst.data();
-        VkDebugUtilsMessengerCreateInfoEXT debug_CI = vk::debug_messenger_CI(debug_callback);
+
+        VkDebugUtilsMessengerCreateInfoEXT debug_CI {};
+        debug_CI.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debug_CI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+        debug_CI.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debug_CI.pfnUserCallback = &VulkanContext::debug_callback;
+
         instance_CI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_CI;
+
+        //VkDebugUtilsMessengerCreateInfoEXT debug_CI = vk::debug_messenger_CI(debug_callback);
+        //instance_CI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_CI;
 
 
     } else {
         instance_CI.enabledLayerCount = 0;
         instance_CI.pNext = nullptr;
     }
+
+    vkCreateInstance(&instance_CI,nullptr,&instance);
+
 }
+
+/*
+ * @return instance extensions: GLFW and DEBUG extension
+ */
 
 std::vector<const char *> VulkanContext::get_req_instance_extensions() {
     uint32_t glfwExtensionCount = 0;
@@ -69,6 +88,9 @@ VulkanContext::vkExt_create_debug_messenger(VkInstance instance, const VkDebugUt
     }
 }
 
+/*
+ * clean vkDestroyDebugUtisMessengerEXT
+ */
 void VulkanContext::vkExt_destroy_debug_messenger(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger,
                                                   const VkAllocationCallbacks *pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -95,6 +117,27 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverity
     return VK_FALSE;
 }
 
+
+VkBool32 VulkanContext::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
+    if ((messageSeverity & (VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) == 0) {
+        // LUMEN_TRACE("Validation Warning: {0} ", pCallbackData->pMessage);
+        return VK_TRUE;
+    }
+    LOG_ERROR("Validation Error: {0} ", pCallbackData->pMessage);
+    return VK_FALSE;
+
+}
+
+
 void VulkanContext::pick_up_physical_device() {
+
+}
+
+void VulkanContext::clean_up() {
+
+    if(enable_validation_layers) {
+        vkExt_destroy_debug_messenger(instance,debug_messenger,nullptr);
+    }
+    vkDestroyInstance(instance,nullptr);
 
 }

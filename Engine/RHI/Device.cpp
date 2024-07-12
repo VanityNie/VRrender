@@ -5,6 +5,7 @@
 #include "Device.h"
 
 Device::Device(VulkanContext *context) {
+    PhyscialDeviceContext physcial_device_context ;
 
 }
 

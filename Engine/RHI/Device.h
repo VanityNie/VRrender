@@ -7,6 +7,7 @@
 
 #include "vulkan/vulkan.h"
 #include "VulkanContext.h"
+#include"vma/vk_mem_alloc.h"
 class Device {
 
 
@@ -16,9 +17,11 @@ private:
 
 
 public:
-    Device(VulkanContext * context );
-
+    explicit Device(VulkanContext * context );
     void create_device();
+
+
+    VmaAllocator m_memory_alloactor;
 };
 
 

@@ -31,7 +31,21 @@ struct DescriptorInfo
     }
 };
 
+struct SwapChianSupportDetails {
 
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+struct SwapChianContext {
+    //swapChain
+    VkExtent2D swapchain_extent;
+    VkSwapchainKHR swapchain;
+    VkSurfaceKHR surface;
+
+    SwapChianSupportDetails swap_chian_support_details;
+};
 
 struct PhyscialDeviceContext
 {
@@ -50,18 +64,15 @@ private:
     GLFWwindow* window_ptr = nullptr;
     VkInstance instance;
 
-    bool enable_validation_layers;
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     PhyscialDeviceContext physcial_device_context;
 
+    bool enable_validation_layers;
     const std::vector<const char*> validation_layers_lst = {"VK_LAYER_KHRONOS_validation"};
     VkDebugUtilsMessengerEXT debug_messenger;
     bool check_validation_layer_support();
 
-    //swapChain
-    VkExtent2D swapchain_extent;
-    VkSwapchainKHR swapchain;
-    VkSurfaceKHR surface;
+    SwapChianContext swap_chian_context;
 
 
     //debug
@@ -77,15 +88,25 @@ private:
     std::vector<VkQueue> queues;
     QueueFamilyIndices indices;
 
-
+    void clean_up();
 
 
 public:
     VulkanContext(Windows* windows);
+
+    void debug_util_create();
+
     void create_physical_device();
     void pick_up_physical_device();
     void create_instance();
+
+    VkInstance get_instance(){return this->instance;}
+
     std::vector<const char*> get_req_instance_extensions();
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                         void* pUserData);
 
 };
 
