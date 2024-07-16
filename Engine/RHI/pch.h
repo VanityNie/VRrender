@@ -10,6 +10,7 @@
 #include <GLFW/glfw3.h>
 #include <optional>
 #include <string>
+#include <set>
 #include<memory>
 #include "spdlog/spdlog.h"
 #include "log.h"

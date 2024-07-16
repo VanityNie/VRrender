@@ -152,6 +152,8 @@ void VulkanContext::pick_up_physical_device() {
     vkEnumeratePhysicalDevices(instance, &device_cnt, devices.data());
 
 
+
+
 }
 
 void VulkanContext::clean_up() {
@@ -162,3 +164,111 @@ void VulkanContext::clean_up() {
     vkDestroyInstance(instance,nullptr);
 
 }
+
+QueueFamilyIndices VulkanContext::find_queue_familyes() {
+    QueueFamilyIndices indices;
+    uint32_t queue_family_count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count,
+                                             nullptr);
+    queue_famliy.resize(queue_family_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count,
+                                             queue_famliy.data());
+    int i = 0;
+
+    for (const auto &queueFamily: queue_famliy) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            indices.gfx_family = i;
+        }
+        if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+            indices.compute_family = i;
+        }
+
+        VkBool32 present_support = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, swap_chian_context.surface, &present_support);
+
+        if (present_support) {
+            indices.present_family = i;
+        }
+        if (indices.is_complete()) {
+            break;
+        }
+        i++;
+    }
+    return indices;
+}
+
+SwapChianSupportDetails VulkanContext::query_swap_chain_support() {
+    SwapChianSupportDetails details;
+
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device,swap_chian_context.surface,
+                                              &details.capabilities);
+
+    //get format support info
+    uint32_t format_cnt;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device,swap_chian_context.surface,
+                                         &format_cnt, nullptr);
+
+    if(format_cnt!=0)
+    {
+        details.formats.resize(format_cnt);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device,swap_chian_context.surface,
+                                             &format_cnt, details.formats.data());
+    }
+
+    uint32_t present_mode_cnt;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, swap_chian_context.surface, &present_mode_cnt, nullptr);
+
+    //get present mode support
+    if(present_mode_cnt !=0)
+    {
+        details.presentModes.resize(present_mode_cnt);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device,swap_chian_context.surface,
+                                                  &present_mode_cnt,details.presentModes.data());
+    }
+
+    return details;
+}
+
+bool VulkanContext::is_suitable_physical_device() {
+    QueueFamilyIndices familyIndices = find_queue_familyes();
+
+
+
+    //physical device extension support
+
+    auto extension_supported = [this]()
+    {
+        uint32_t extension_cnt;
+        vkEnumerateDeviceExtensionProperties(physical_device, nullptr,
+                                             &extension_cnt, nullptr);
+
+        std::vector<VkExtensionProperties> available_extensions(extension_cnt);
+        vkEnumerateDeviceExtensionProperties(physical_device, nullptr,
+                                             &extension_cnt, available_extensions.data());
+        std::set<std::string> required_extensions(physical_device_extensions.begin(),physical_device_extensions.end());
+
+        for (const auto& extension : available_extensions) {
+            required_extensions.erase(extension.extensionName);
+        }
+
+        return required_extensions.empty();
+    };
+
+    bool swapchain_adequate = false;
+    if(extension_supported())
+    {
+        swap_chian_context.swap_chian_support_details = query_swap_chain_support();
+        auto swap_chain_details =  swap_chian_context.swap_chian_support_details;
+        swapchain_adequate =  !swap_chain_details.presentModes.empty() && !swap_chain_details.formats.empty();
+    }
+
+    return indices.is_complete() && swapchain_adequate;
+
+}
+
+
+
+
+
+

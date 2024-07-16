@@ -56,6 +56,7 @@ struct PhyscialDeviceContext
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_props{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR};
+
 };
 
 class VulkanContext
@@ -66,8 +67,10 @@ private:
 
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     PhyscialDeviceContext physcial_device_context;
-    std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    std::vector<const char*> physical_device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    bool is_suitable_physical_device();
 
+    QueueFamilyIndices find_queue_familyes();
 
     bool enable_validation_layers;
     const std::vector<const char*> validation_layers_lst = {"VK_LAYER_KHRONOS_validation"};
@@ -75,6 +78,7 @@ private:
     bool check_validation_layer_support();
 
     SwapChianContext swap_chian_context;
+    SwapChianSupportDetails query_swap_chain_support();
     void create_surface();
 
     //debug
@@ -87,6 +91,7 @@ private:
 
 
     //queue
+    std::vector<VkQueueFamilyProperties> queue_famliy;
     std::vector<VkQueue> queues;
     QueueFamilyIndices indices;
 
