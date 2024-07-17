@@ -5,7 +5,6 @@
 #ifndef VULKANABSTRACTIONLAYER_WINDOWS_H
 #define VULKANABSTRACTIONLAYER_WINDOWS_H
 
-
 #include "pch.h"
 
 struct WindowsSetting{

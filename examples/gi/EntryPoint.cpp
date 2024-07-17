@@ -9,8 +9,8 @@
 int main()
 {
     Logger::init();
-    DescriptorInfo::print();
     Windows windows;
+    VulkanContext vulkan_context{&windows,true};
     windows.loop();
     return 0;
 }

@@ -11,7 +11,6 @@
 #include <stdexcept>
 
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 class Logger{
 
 public:

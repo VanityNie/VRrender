@@ -50,12 +50,24 @@ struct SwapChianContext {
 struct PhyscialDeviceContext
 {
     VkPhysicalDeviceFeatures supported_features;
+    VkPhysicalDeviceFeatures2 supported_features2;
     VkPhysicalDeviceProperties device_properties;
     VkPhysicalDeviceProperties2 device_properties2;
     VkPhysicalDeviceMemoryProperties memory_properties;
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_props{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR};
+
+     void print_info() {
+        LOG_INFO("Vulkan Physical Device Information:");
+         LOG_INFO("  Device Name: {}",device_properties.deviceName);
+
+        LOG_INFO("  Memory Heaps: {}", memory_properties.memoryHeapCount);
+        for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i) {
+            LOG_INFO("    Heap {}: {} MB", i, memory_properties.memoryHeaps[i].size / (1024 * 1024));
+        }
+
+    }
 
 };
 
@@ -65,12 +77,12 @@ private:
     GLFWwindow* window_ptr = nullptr;
     VkInstance instance;
 
-    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+    VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
     PhyscialDeviceContext physcial_device_context;
     std::vector<const char*> physical_device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    bool is_suitable_physical_device();
+    bool is_suitable_physical_device(VkPhysicalDevice physical_device);
 
-    QueueFamilyIndices find_queue_familyes();
+    QueueFamilyIndices find_queue_familyes(VkPhysicalDevice physical_device);
 
     bool enable_validation_layers;
     const std::vector<const char*> validation_layers_lst = {"VK_LAYER_KHRONOS_validation"};
@@ -78,7 +90,7 @@ private:
     bool check_validation_layer_support();
 
     SwapChianContext swap_chian_context;
-    SwapChianSupportDetails query_swap_chain_support();
+    SwapChianSupportDetails query_swap_chain_support(VkPhysicalDevice physical_device) const;
     void create_surface();
 
     //debug
@@ -99,7 +111,7 @@ private:
 
 
 public:
-    VulkanContext(Windows* windows);
+    VulkanContext(Windows* windows,bool enableDebug);
 
     void debug_util_create();
 

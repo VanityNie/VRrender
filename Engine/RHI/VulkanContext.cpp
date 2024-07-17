@@ -6,11 +6,18 @@
 #include "../../submodules/glfw/src/null_joystick.h"
 
 
-VulkanContext::VulkanContext(Windows *windows) {
+VulkanContext::VulkanContext(Windows *windows,bool enableDebug) {
 
+    if(enableDebug)
+        enable_validation_layers = true;
     this->window_ptr = windows->getWindowHandle();
+    create_instance();
 
 
+    create_surface();
+    pick_up_physical_device();
+
+    this->physcial_device_context.print_info();
 
 }
 
@@ -31,19 +38,21 @@ void VulkanContext::create_instance() {
     auto extensions = get_req_instance_extensions();
     instance_CI.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     instance_CI.ppEnabledExtensionNames = extensions.data();
-
+    VkDebugUtilsMessengerCreateInfoEXT debug_CI {};
     //debug validation layers
     if (enable_validation_layers) {
         instance_CI.enabledLayerCount = static_cast<uint32_t>(validation_layers_lst.size());
         instance_CI.ppEnabledLayerNames = validation_layers_lst.data();
 
-        VkDebugUtilsMessengerCreateInfoEXT debug_CI {};
+
         debug_CI.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         debug_CI.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
         debug_CI.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debug_CI.pfnUserCallback = &VulkanContext::debug_callback;
 
         instance_CI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_CI;
+
+
 
         //VkDebugUtilsMessengerCreateInfoEXT debug_CI = vk::debug_messenger_CI(debug_callback);
         //instance_CI.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_CI;
@@ -56,6 +65,14 @@ void VulkanContext::create_instance() {
 
     //vkCreateInstance(&instance_CI,nullptr,&instance);
     check(vkCreateInstance(&instance_CI,nullptr,&instance),"Failed to crate Instance");
+
+    // 创建调试消息器(仅在启用验证层时)
+    if (enable_validation_layers) {
+        if (vkExt_create_debug_messenger(this->instance, &debug_CI, nullptr, &debug_messenger) != VK_SUCCESS) {
+            LOG_ERROR("Failed to set up debug messenger!");
+        }
+    }
+
 
     if(enable_validation_layers && !check_validation_layer_support()) {
         LOG_ERROR("Validation layers requested, but not available!");
@@ -151,8 +168,29 @@ void VulkanContext::pick_up_physical_device() {
     std::vector<VkPhysicalDevice> devices(device_cnt);
     vkEnumeratePhysicalDevices(instance, &device_cnt, devices.data());
 
+    for(const VkPhysicalDevice & device: devices) {
 
+        if(is_suitable_physical_device(device)) {
+            this->m_physical_device = device;
 
+            vkGetPhysicalDeviceFeatures(m_physical_device,&physcial_device_context.supported_features);
+            vkGetPhysicalDeviceProperties(m_physical_device,&physcial_device_context.device_properties);
+            vkGetPhysicalDeviceMemoryProperties(m_physical_device,&physcial_device_context.memory_properties);
+            break;
+        }
+
+    }
+
+    if(m_physical_device == VK_NULL_HANDLE) {
+
+        LOG_ERROR("Failed to find a suitable GPU");
+    }
+
+    LOG_INFO("Get Physical Device");
+
+    VkPhysicalDeviceProperties2 prop2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+    prop2.pNext = &physcial_device_context.rt_props;
+    vkGetPhysicalDeviceProperties2(m_physical_device,&physcial_device_context.device_properties2);
 
 }
 
@@ -165,7 +203,7 @@ void VulkanContext::clean_up() {
 
 }
 
-QueueFamilyIndices VulkanContext::find_queue_familyes() {
+QueueFamilyIndices VulkanContext::find_queue_familyes(VkPhysicalDevice physical_device) {
     QueueFamilyIndices indices;
     uint32_t queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count,
@@ -197,7 +235,7 @@ QueueFamilyIndices VulkanContext::find_queue_familyes() {
     return indices;
 }
 
-SwapChianSupportDetails VulkanContext::query_swap_chain_support() {
+SwapChianSupportDetails VulkanContext::query_swap_chain_support(VkPhysicalDevice physical_device) const {
     SwapChianSupportDetails details;
 
 
@@ -230,14 +268,14 @@ SwapChianSupportDetails VulkanContext::query_swap_chain_support() {
     return details;
 }
 
-bool VulkanContext::is_suitable_physical_device() {
-    QueueFamilyIndices familyIndices = find_queue_familyes();
+bool VulkanContext::is_suitable_physical_device(VkPhysicalDevice physical_device) {
+    QueueFamilyIndices familyIndices = find_queue_familyes(physical_device);
 
 
 
     //physical device extension support
 
-    auto extension_supported = [this]()
+    auto extension_supported = [&]()
     {
         uint32_t extension_cnt;
         vkEnumerateDeviceExtensionProperties(physical_device, nullptr,
@@ -258,7 +296,7 @@ bool VulkanContext::is_suitable_physical_device() {
     bool swapchain_adequate = false;
     if(extension_supported())
     {
-        swap_chian_context.swap_chian_support_details = query_swap_chain_support();
+        swap_chian_context.swap_chian_support_details = query_swap_chain_support( physical_device);
         auto swap_chain_details =  swap_chian_context.swap_chian_support_details;
         swapchain_adequate =  !swap_chain_details.presentModes.empty() && !swap_chain_details.formats.empty();
     }
