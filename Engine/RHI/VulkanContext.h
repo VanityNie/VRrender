@@ -60,6 +60,7 @@ struct PhyscialDeviceContext
 
      void print_info() {
         LOG_INFO("Vulkan Physical Device Information:");
+
          LOG_INFO("  Device Name: {}",device_properties.deviceName);
 
         LOG_INFO("  Memory Heaps: {}", memory_properties.memoryHeapCount);

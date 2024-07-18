@@ -12,5 +12,6 @@ int main()
     Windows windows;
     VulkanContext vulkan_context{&windows,true};
     windows.loop();
+    LOG_INFO("over");
     return 0;
 }

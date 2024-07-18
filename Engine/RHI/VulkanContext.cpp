@@ -3,8 +3,6 @@
 //
 #include "VulkanContext.h"
 
-#include "../../submodules/glfw/src/null_joystick.h"
-
 
 VulkanContext::VulkanContext(Windows *windows,bool enableDebug) {
 
@@ -17,7 +15,8 @@ VulkanContext::VulkanContext(Windows *windows,bool enableDebug) {
     create_surface();
     pick_up_physical_device();
 
-    this->physcial_device_context.print_info();
+    LOG_INFO("Context create");
+    //this->physcial_device_context.print_info();
 
 }
 
@@ -65,7 +64,7 @@ void VulkanContext::create_instance() {
 
     //vkCreateInstance(&instance_CI,nullptr,&instance);
     check(vkCreateInstance(&instance_CI,nullptr,&instance),"Failed to crate Instance");
-
+    LOG_INFO("Instance create success");
     // 创建调试消息器(仅在启用验证层时)
     if (enable_validation_layers) {
         if (vkExt_create_debug_messenger(this->instance, &debug_CI, nullptr, &debug_messenger) != VK_SUCCESS) {
@@ -95,6 +94,29 @@ std::vector<const char *> VulkanContext::get_req_instance_extensions() {
     }
     return extensions;
 }
+
+bool VulkanContext::check_validation_layer_support() {
+    uint32_t layer_cnt;
+    vkEnumerateInstanceLayerProperties(&layer_cnt, nullptr);
+    std::vector<VkLayerProperties> available_layers(layer_cnt);
+    vkEnumerateInstanceLayerProperties(&layer_cnt, available_layers.data());
+    for (const char* layer_name : validation_layers_lst) {
+        bool layer_found = false;
+
+        for (const auto& layerProperties : available_layers) {
+            if (strcmp(layer_name, layerProperties.layerName) == 0) {
+                layer_found = true;
+                break;
+            }
+        }
+        if (!layer_found) {
+            return false;
+        }
+    }
+    return true;
+
+}
+
 
 VkResult
 VulkanContext::vkExt_create_debug_messenger(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
@@ -165,8 +187,9 @@ void VulkanContext::pick_up_physical_device() {
         LOG_ERROR("Failed to find GPUs with Vulkan support");
     }
 
+
     std::vector<VkPhysicalDevice> devices(device_cnt);
-    vkEnumeratePhysicalDevices(instance, &device_cnt, devices.data());
+    check(vkEnumeratePhysicalDevices(instance, &device_cnt, devices.data()),"Enumerate Physcial Device ERROR");
 
     for(const VkPhysicalDevice & device: devices) {
 
@@ -176,20 +199,25 @@ void VulkanContext::pick_up_physical_device() {
             vkGetPhysicalDeviceFeatures(m_physical_device,&physcial_device_context.supported_features);
             vkGetPhysicalDeviceProperties(m_physical_device,&physcial_device_context.device_properties);
             vkGetPhysicalDeviceMemoryProperties(m_physical_device,&physcial_device_context.memory_properties);
+            LOG_INFO("Get Suitable Physical Device");
             break;
+        }else {
+            LOG_WARN("This Device Not suitable");
+            this->m_physical_device = device;
         }
 
     }
+    //physcial_device_context.print_info();
 
     if(m_physical_device == VK_NULL_HANDLE) {
 
         LOG_ERROR("Failed to find a suitable GPU");
     }
 
-    LOG_INFO("Get Physical Device");
+    physcial_device_context.print_info();
 
-    VkPhysicalDeviceProperties2 prop2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-    prop2.pNext = &physcial_device_context.rt_props;
+    physcial_device_context.device_properties2 = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+    physcial_device_context.device_properties2.pNext = &physcial_device_context.rt_props;
     vkGetPhysicalDeviceProperties2(m_physical_device,&physcial_device_context.device_properties2);
 
 }
@@ -214,11 +242,15 @@ QueueFamilyIndices VulkanContext::find_queue_familyes(VkPhysicalDevice physical_
     int i = 0;
 
     for (const auto &queueFamily: queue_famliy) {
+
+        spdlog::info("Queue Family {}: ", i);
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             indices.gfx_family = i;
+            spdlog::info("  Supports graphics");
         }
         if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
             indices.compute_family = i;
+            spdlog::info("  Supports compute");
         }
 
         VkBool32 present_support = false;
@@ -226,8 +258,10 @@ QueueFamilyIndices VulkanContext::find_queue_familyes(VkPhysicalDevice physical_
 
         if (present_support) {
             indices.present_family = i;
+            spdlog::info("  Supports presentation");
         }
         if (indices.is_complete()) {
+            spdlog::info("Found all required queue families");
             break;
         }
         i++;
@@ -269,8 +303,7 @@ SwapChianSupportDetails VulkanContext::query_swap_chain_support(VkPhysicalDevice
 }
 
 bool VulkanContext::is_suitable_physical_device(VkPhysicalDevice physical_device) {
-    QueueFamilyIndices familyIndices = find_queue_familyes(physical_device);
-
+   this->indices = find_queue_familyes(physical_device);
 
 
     //physical device extension support
@@ -299,6 +332,11 @@ bool VulkanContext::is_suitable_physical_device(VkPhysicalDevice physical_device
         swap_chian_context.swap_chian_support_details = query_swap_chain_support( physical_device);
         auto swap_chain_details =  swap_chian_context.swap_chian_support_details;
         swapchain_adequate =  !swap_chain_details.presentModes.empty() && !swap_chain_details.formats.empty();
+    }else {
+        LOG_ERROR("extension not supported");
+    }
+    if(!indices.is_complete()) {
+        LOG_ERROR("Queue Famliy not supported");
     }
 
     return indices.is_complete() && swapchain_adequate;
