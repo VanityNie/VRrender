@@ -5,10 +5,22 @@
 #include "Device.h"
 
 Device::Device(VulkanContext *context) {
-    PhyscialDeviceContext physcial_device_context ;
+    
+    m_context = context;
 
 }
 
 void Device::create_device() {
 
+
+    VkPhysicalDevice physical_device = m_context->get_physcial_device();
+    VkDeviceCreateInfo device_create_info{};
+
+
+    //todo finish create info
+   
+    vkCreateDevice(physical_device, &device_create_info, nullptr, &device);
+
+
+      
 }

@@ -15,10 +15,15 @@ private:
     VkDevice device;
     VulkanContext * m_context;
 
-
+    void create_device();
 public:
     explicit Device(VulkanContext * context );
-    void create_device();
+    
+
+    std::vector<char*> require_extensions{};
+    std::vector<char*> require_layers{};
+
+
 
 
     VmaAllocator m_memory_alloactor;

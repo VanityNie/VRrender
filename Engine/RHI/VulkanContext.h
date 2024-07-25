@@ -109,17 +109,17 @@ private:
     QueueFamilyIndices indices;
 
     void clean_up();
-
-
-public:
-    VulkanContext(Windows* windows,bool enableDebug);
-
     void debug_util_create();
 
     void create_physical_device();
     void pick_up_physical_device();
     void create_instance();
 
+public:
+    VulkanContext(Windows* windows,bool enableDebug);
+
+    inline PhyscialDeviceContext& get_physcial_context() { return this->physcial_device_context; }
+    VkPhysicalDevice get_physcial_device() { return this->m_physical_device; }
     VkInstance get_instance(){return this->instance;}
 
     std::vector<const char*> get_req_instance_extensions();
