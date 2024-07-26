@@ -82,11 +82,10 @@ private:
     PhyscialDeviceContext physcial_device_context;
     std::vector<const char*> physical_device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     bool is_suitable_physical_device(VkPhysicalDevice physical_device);
-
     QueueFamilyIndices find_queue_familyes(VkPhysicalDevice physical_device);
 
-    bool enable_validation_layers;
-    const std::vector<const char*> validation_layers_lst = {"VK_LAYER_KHRONOS_validation"};
+
+ 
     VkDebugUtilsMessengerEXT debug_messenger;
     bool check_validation_layer_support();
 
@@ -102,11 +101,13 @@ private:
     void vkExt_destroy_debug_messenger(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger,
                                        const VkAllocationCallbacks* pAllocator);
 
+    std::vector<const char*> VulkanContext::get_req_instance_extensions();
+
 
     //queue
     std::vector<VkQueueFamilyProperties> queue_famliy;
     std::vector<VkQueue> queues;
-    QueueFamilyIndices indices;
+    QueueFamilyIndices queue_indices;
 
     void clean_up();
     void debug_util_create();
@@ -121,6 +122,9 @@ public:
     inline PhyscialDeviceContext& get_physcial_context() { return this->physcial_device_context; }
     VkPhysicalDevice get_physcial_device() { return this->m_physical_device; }
     VkInstance get_instance(){return this->instance;}
+    QueueFamilyIndices get_queue_indices() { return this->queue_indices; }
+
+    bool enable_validation_layers;
 
     std::vector<const char*> get_req_instance_extensions();
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -128,6 +132,7 @@ public:
                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                          void* pUserData);
 
+    const std::vector<const char*> validation_layers_lst = { "VK_LAYER_KHRONOS_validation" };
 };
 
 

@@ -303,7 +303,7 @@ SwapChianSupportDetails VulkanContext::query_swap_chain_support(VkPhysicalDevice
 }
 
 bool VulkanContext::is_suitable_physical_device(VkPhysicalDevice physical_device) {
-   this->indices = find_queue_familyes(physical_device);
+   this->queue_indices = find_queue_familyes(physical_device);
 
 
     //physical device extension support
@@ -335,11 +335,11 @@ bool VulkanContext::is_suitable_physical_device(VkPhysicalDevice physical_device
     }else {
         LOG_ERROR("extension not supported");
     }
-    if(!indices.is_complete()) {
+    if(!queue_indices.is_complete()) {
         LOG_ERROR("Queue Famliy not supported");
     }
 
-    return indices.is_complete() && swapchain_adequate;
+    return queue_indices.is_complete() && swapchain_adequate;
 
 }
 
