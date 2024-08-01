@@ -134,6 +134,7 @@ public:
                                                          void* pUserData);
 
     const std::vector<const char*> validation_layers_lst = { "VK_LAYER_KHRONOS_validation" };
+    bool is_same_Graphic_PresentQueueFamily();
 };
 
 

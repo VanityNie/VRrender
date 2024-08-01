@@ -112,6 +112,8 @@ namespace van {
         
 
     private:
+
+        void create_swap_chain();
         bool acquireCustom(VkSemaphore semaphore, bool* pRecreated = nullptr, SwapChainAcquireState* pOut = nullptr);
         bool acquireCustom(VkSemaphore semaphore, int width, int height, bool* pRecreated, SwapChainAcquireState* pOut = nullptr);
         

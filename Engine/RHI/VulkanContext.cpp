@@ -171,6 +171,15 @@ VkBool32 VulkanContext::debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT me
 
 }
 
+bool VulkanContext::is_same_Graphic_PresentQueueFamily()
+{
+     
+    if (queue_indices.present_family.value() != queue_indices.gfx_family.value()) {
+        return false;
+    }
+    return true;
+}
+
 void VulkanContext::create_surface() {
 
     check(
