@@ -47,6 +47,7 @@ struct SwapChianContext {
     SwapChianSupportDetails swap_chian_support_details;
 };
 
+
 struct PhyscialDeviceContext
 {
     VkPhysicalDeviceFeatures supported_features;
@@ -112,7 +113,7 @@ private:
     void clean_up();
     void debug_util_create();
 
-    void create_physical_device();
+   // void create_physical_device();
     void pick_up_physical_device();
     void create_instance();
 
@@ -126,7 +127,7 @@ public:
 
     bool enable_validation_layers;
 
-    std::vector<const char*> get_req_instance_extensions();
+   
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                          VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,

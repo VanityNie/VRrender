@@ -4,9 +4,9 @@
 
 #include "Device.h"
 
-Device::Device(VulkanContext *context) {
+Device::Device(VulkanContext *context):m_context(context) {
     
-    m_context = context;
+  
 
 }
 
@@ -81,14 +81,15 @@ void Device::create_device() {
 
 
     check(vkCreateDevice(physical_device, &device_create_info, nullptr, &device), "Failed to create logical device");
-   
+    LOG_INFO("create Device success");
     
 
     // Do get Queue
-
+    queues.resize(3, {});
 
     vkGetDeviceQueue(device, indices.gfx_family.value(), 0, &queues[(int)QueueType::GFX]);
-    vkGetDeviceQueue(device, indices.compute_family.value(), , &queues[(int)QueueType::COMPUTE]);
+    vkGetDeviceQueue(device, indices.compute_family.value(), 0,&queues[(int)QueueType::COMPUTE]);
     vkGetDeviceQueue(device, indices.present_family.value(), 0, &queues[(int)QueueType::PRESENT]);
 
 }
+

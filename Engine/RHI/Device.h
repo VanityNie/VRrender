@@ -119,13 +119,14 @@ class Device {
 
 private:
     VkDevice device;
-    VulkanContext* m_context;
-
+   
+    
+    std::shared_ptr<VulkanContext>m_context;
 
     std::vector<const char*> device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
     void* device_create_chain;
-    void create_device();
+ 
 
     std::vector<VkQueue> queues;
 
@@ -136,9 +137,9 @@ public:
 
 
     DeviceFeatureManager device_feature_manager;
+    void create_device();
 
-
-
+    std::shared_ptr<VulkanContext> get_vulkan_context() { return m_context; }
     VmaAllocator m_memory_alloactor;
 };
 
