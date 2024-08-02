@@ -34,6 +34,10 @@ namespace van {
     class SwapChain
     {
     private:
+        static constexpr VkFormat s_defaultImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+
+        static constexpr VkImageUsageFlags s_defaultImageUsage =
+            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
         struct Entry {
 
@@ -54,7 +58,8 @@ namespace van {
         VkQueue  m_waitQueue{};  // See waitIdle and setWaitQueue.
         uint32_t m_queueFamilyIndex{ 0 };
 
-
+        VkFormat m_format{};
+        VkImageUsageFlags m_imageUsage{};
 
         VkSwapchainKHR m_swapchain{};
         VkSurfaceKHR    m_surface{};
@@ -85,9 +90,21 @@ namespace van {
         // usage flags for swapchain images
         VkImageUsageFlags m_imageUsage{};
 
+
+        VkResult wait_idle();
+
     public:
 
         SwapChain(Device* device);
+
+        SwapChain(VkDevice          device,
+            VkPhysicalDevice  physicalDevice,
+            VkQueue           queue,
+            uint32_t          queueFamilyIndex,
+            VkSurfaceKHR      surface,
+            VkFormat          format = s_defaultImageFormat,
+            VkImageUsageFlags imageUsage = s_defaultImageUsage);
+
 
         SwapChain(SwapChain const&) = delete;
         SwapChain& operator=(SwapChain const&) = delete;
@@ -112,6 +129,13 @@ namespace van {
         
 
     private:
+        bool SwapChain::init(VkDevice          device,
+            VkPhysicalDevice  physicalDevice,
+            VkQueue           queue,
+            uint32_t          queueFamilyIndex,
+            VkSurfaceKHR      surface,
+            VkFormat          format,
+            VkImageUsageFlags imageUsage);
 
         void create_swap_chain();
         bool acquireCustom(VkSemaphore semaphore, bool* pRecreated = nullptr, SwapChainAcquireState* pOut = nullptr);

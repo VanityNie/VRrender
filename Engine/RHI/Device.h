@@ -136,9 +136,12 @@ public:
     explicit Device(VulkanContext* context);
 
 
+    VkQueue get_graphic_queue() { return queues[(int)QueueType::GFX]; }
+    VkQueue get_compute_queue() { return queues[(int)QueueType::COMPUTE]; }
+    VkQueue get_present_queue() { return queues[(int)QueueType::PRESENT]; }
     DeviceFeatureManager device_feature_manager;
     void create_device();
-
+    VkDevice get_device() { return device; }
     std::shared_ptr<VulkanContext> get_vulkan_context() { return m_context; }
     VmaAllocator m_memory_alloactor;
 };

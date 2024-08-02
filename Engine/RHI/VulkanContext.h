@@ -124,6 +124,7 @@ public:
     VkPhysicalDevice get_physcial_device() { return this->m_physical_device; }
     VkInstance get_instance(){return this->instance;}
     QueueFamilyIndices get_queue_indices() { return this->queue_indices; }
+    SwapChianContext get_swapchain_coontext() { return this->swap_chian_context; }
 
     bool enable_validation_layers;
 
