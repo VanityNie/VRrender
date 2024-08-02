@@ -93,6 +93,11 @@ void van::SwapChain::update_swpachain_images()
 	}
 }
 
+/*
+* update SwapChain 
+* if SwapChain is empty
+* create new SwapChain
+*/
 VkExtent2D van::SwapChain::update(int width, int height, bool vsync)
 {
 	m_changeID++;
@@ -186,7 +191,7 @@ VkExtent2D van::SwapChain::update(int width, int height, bool vsync)
 	swapchain_create_info.oldSwapchain = oldSwapchain;
 	swapchain_create_info.clipped = true;
 
-	check(vkCreateSwapchainKHR(m_device &swapchain_create_info, nullptr, &m_swapchain),"Create SwapChian error");
+	check(vkCreateSwapchainKHR(m_device, &swapchain_create_info, nullptr, &m_swapchain),"Create SwapChian error");
 
   // If we just re-created an existing swapchain, we should destroy the old
   // swapchain at this point.
@@ -271,4 +276,115 @@ void van::SwapChain::create_swap_chain()
 	swapChainInfo.imageSharingMode = share_mode;
 	swapChainInfo.imageFormat = m_format;
 
+}
+
+
+namespace van {
+
+
+	void SwapChain::deinitResources()
+	{
+		if (!m_device)
+			return;
+
+		VkResult result = wait_idle();
+	
+
+		for (auto it : m_entries)
+		{
+			vkDestroyImageView(m_device, it.imageView, nullptr);
+		}
+
+		for (auto it : m_semaphores)
+		{
+			vkDestroySemaphore(m_device, it.readSemaphore, nullptr);
+			vkDestroySemaphore(m_device, it.writtenSemaphore, nullptr);
+		}
+
+		if (m_swapchain)
+		{
+			vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+			m_swapchain = VK_NULL_HANDLE;
+		}
+
+		m_entries.clear();
+		m_barriers.clear();
+	}
+
+
+	VkSemaphore SwapChain::getActiveWrittenSemaphore() const
+	{
+		return m_semaphores[(m_currentSemaphore % getSemaphoreCycleCount())].writtenSemaphore;
+	}
+
+	VkSemaphore SwapChain::getActiveReadSemaphore() const
+	{
+		return m_semaphores[(m_currentSemaphore % getSemaphoreCycleCount())].readSemaphore;
+	}
+
+	VkImage SwapChain::getActiveImage() const
+	{
+		return m_entries[m_currentImage].image;
+	}
+
+	VkImageView SwapChain::getActiveImageView() const
+	{
+		return m_entries[m_currentImage].imageView;
+	}
+
+	VkImage SwapChain::getImage(uint32_t i) const
+	{
+		if (i >= m_imageCount)
+			return nullptr;
+		return m_entries[i].image;
+	}
+
+	uint32_t SwapChain::getChangeID() const
+	{
+		return m_changeID;
+	}
+
+	VkImageView SwapChain::getImageView(uint32_t i) const
+	{
+		if (i >= m_imageCount)
+			return nullptr;
+		return m_entries[i].imageView;
+	}
+
+}
+
+
+void van::SwapChain::present(VkQueue queue)
+{
+	VkResult         result;
+	VkPresentInfoKHR presentInfo;
+
+	presentCustom(presentInfo);
+
+	result = vkQueuePresentKHR(queue, &presentInfo);
+}
+
+void van::SwapChain::presentCustom(VkPresentInfoKHR& presentInfo)
+{
+	VkSemaphore& written = m_semaphores[(m_currentSemaphore % getSemaphoreCycleCount())].writtenSemaphore;
+
+	presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+	presentInfo.swapchainCount = 1;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &written;
+	presentInfo.pSwapchains = &m_swapchain;
+	presentInfo.pImageIndices = &m_currentImage;
+
+	m_currentSemaphore++;
+}
+
+
+
+
+
+
+void van::SwapChain::cmdUpdateBarriers(VkCommandBuffer cmd) const
+{
+	vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0,
+		nullptr, m_imageCount, m_barriers.data());
 }

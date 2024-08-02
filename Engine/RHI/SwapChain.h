@@ -94,7 +94,7 @@ namespace van {
 
 
         VkResult wait_idle();
-
+        void deinitResources();
     public:
 
         SwapChain(Device* device);
@@ -154,7 +154,7 @@ namespace van {
 
         void present() { present(m_queue); }
 
-        void presentCustom(VkPresentInfoKHR& outPresentInfo);
+        void presentCustom(VkPresentInfoKHR& presentInfo);
 
         VkSemaphore getActiveReadSemaphore() const;
         VkSemaphore getActiveWrittenSemaphore() const;
