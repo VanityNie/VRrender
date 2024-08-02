@@ -52,7 +52,9 @@ namespace van {
             VkSemaphore writtenSemaphore{};
         };
         VkPhysicalDevice m_phycial_device = VK_NULL_HANDLE;
-        std::shared_ptr<Device> m_device;
+        std::shared_ptr<Device> m_device_context;
+        VkDevice m_device = VK_NULL_HANDLE;
+
 
         VkQueue  m_queue{};
         VkQueue  m_waitQueue{};  // See waitIdle and setWaitQueue.
@@ -113,6 +115,8 @@ namespace van {
         void deinit();
         ~SwapChain() { deinit(); }
 
+
+        void update_swpachain_images();
 
         // triggers queue/device wait idle
  // returns actual swapchain dimensions, which may differ from requested
