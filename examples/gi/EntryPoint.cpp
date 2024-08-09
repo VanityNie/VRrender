@@ -13,6 +13,7 @@ int main()
     VulkanContext vulkan_context{&windows,true};
     Device device(&vulkan_context);
     device.create_device();
+    
     windows.loop();
 
 

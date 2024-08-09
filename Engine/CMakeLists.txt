@@ -5,7 +5,7 @@
 
 set(ENGINE_ROOT_DIR "${ROOT_DIR}/engine")
 
-file(GLOB RHI_SOURCE CONFIGURE_DEPENDS RHI/*.cpp)
+file(GLOB RHI_SOURCE CONFIGURE_DEPENDS RHI/*.cpp RHI/*.h)
 
 set(source ${RHI_SOURCE})
 

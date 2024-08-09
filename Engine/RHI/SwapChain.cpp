@@ -247,6 +247,17 @@ VkExtent2D van::SwapChain::update(int width, int height, bool vsync)
 
 
 
+
+bool van::SwapChain::acquireAutoResize(int width, int height, bool* pRecreated, SwapChainAcquireState* pOut)
+{
+	return acquireCustom(VK_NULL_HANDLE, width, height, pRecreated, pOut);
+}
+
+bool van::SwapChain::acquire(bool* pRecreated, SwapChainAcquireState* pOut)
+{
+	return acquireCustom(VK_NULL_HANDLE, m_updateWidth, m_updateHeight, pRecreated, pOut);
+}
+
 bool van::SwapChain::init(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, uint32_t queueFamilyIndex, VkSurfaceKHR surface, VkFormat format, VkImageUsageFlags imageUsage)
 {
 
@@ -276,6 +287,55 @@ void van::SwapChain::create_swap_chain()
 	swapChainInfo.imageSharingMode = share_mode;
 	swapChainInfo.imageFormat = m_format;
 
+}
+
+bool van::SwapChain::acquireCustom(VkSemaphore argSemaphore, int width, int height, bool* pRecreated, SwapChainAcquireState* pOut)
+{
+	bool didRecreate = false;
+
+	if (width != m_updateWidth || height != m_updateHeight)
+	{
+		deinitResources();
+		update(width, height);
+		m_updateWidth = width;
+		m_updateHeight = height;
+		didRecreate = true;
+	}
+	if (pRecreated != nullptr)
+	{
+		*pRecreated = didRecreate;
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		VkSemaphore semaphore = argSemaphore ? argSemaphore : getActiveReadSemaphore();
+		VkResult    result;
+		result = vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, semaphore, (VkFence)VK_NULL_HANDLE, &m_currentImage);
+
+		if (result == VK_SUCCESS)
+		{
+			if (pOut != nullptr)
+			{
+				pOut->image = getActiveImage();
+				pOut->view = getActiveImageView();
+				pOut->index = getActiveImageIndex();
+				pOut->waitSem = getActiveReadSemaphore();
+				pOut->signalSem = getActiveWrittenSemaphore();
+			}
+			return true;
+		}
+		else if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+		{
+			deinitResources();
+			update(width, height, m_vsync);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
 }
 
 
