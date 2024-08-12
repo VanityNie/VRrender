@@ -6,6 +6,7 @@
 #include "RHI/Windows.h"
 #include "RHI/VulkanContext.h"
 #include"RHI/Device.h"
+#include"spirv_cross.hpp"
 int main()
 {
     Logger::init();
@@ -14,7 +15,12 @@ int main()
     Device device(&vulkan_context);
     device.create_device();
     
+    
     windows.loop();
+    
+
+
+    
 
 
     LOG_INFO("over");

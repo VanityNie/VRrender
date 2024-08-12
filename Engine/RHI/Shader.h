@@ -4,6 +4,13 @@
 #include"pch.h"
 
 
+enum class ResourceType {
+
+	UniformBuffer,
+	Texture,
+
+};
+
 
 struct DescriptorMeta {
 
@@ -20,6 +27,7 @@ private:
 	VkShaderStageFlags stage_flags;
 
 
+public:
 
 
 	

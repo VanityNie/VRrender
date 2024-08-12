@@ -17,7 +17,7 @@ private:
 	std::vector<VkFence> in_flight_fences;
 	std::vector<VkFence> images_in_flight;
 
-	std::vector<Vkc
+	
 
 public:
 

@@ -69,7 +69,7 @@ namespace van {
         VkColorSpaceKHR m_surfaceColor{};
 
         uint32_t       m_imageCount{ 0 };
-        VkSwapchainKHR m_swapchain{};
+    
 
         std::vector<Entry>                m_entries;
         std::vector<SemaphoreEntry>       m_semaphores;
@@ -89,8 +89,7 @@ namespace van {
         bool m_vsync = false;
         // if vsync is off which mode to prefer
         VkPresentModeKHR m_preferredVsyncOffMode = VK_PRESENT_MODE_MAILBOX_KHR;
-        // usage flags for swapchain images
-        VkImageUsageFlags m_imageUsage{};
+   
 
 
         VkResult wait_idle();
