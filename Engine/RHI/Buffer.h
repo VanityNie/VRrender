@@ -5,8 +5,9 @@
 #ifndef VULKANABSTRACTIONLAYER_BUFFER_H
 #define VULKANABSTRACTIONLAYER_BUFFER_H
 
+
 #include "vulkan/vulkan.h"
-#include "vma/vk_mem_alloc.h"
+
 
 class Buffer {
 

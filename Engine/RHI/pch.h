@@ -16,6 +16,7 @@
 #include "spdlog/spdlog.h"
 #include "log.h"
 #include "Windows.h"
-
-
+#include"shaderc/shaderc.hpp"
+#include<string_view>
+#include <filesystem>
 #endif //VULKANABSTRACTIONLAYER_PCH_H
