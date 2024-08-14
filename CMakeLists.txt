@@ -30,6 +30,6 @@ add_subdirectory(submodules/spirv-cross)
 add_subdirectory(submodules/imgui)
 add_subdirectory(submodules/VulkanMemoryAllocator)
 add_subdirectory(submodules/spdlog)
-
+add_subdirectory(submodules/shaderc)
 add_subdirectory(Engine)
 add_subdirectory(examples)

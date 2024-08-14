@@ -33,10 +33,11 @@ set(SPIRV_REFLECT_INCLUDE_DIR  ${ROOT_DIR}/submodules/spirv-reflect)
 set(STB_INCLUDE_DIR            ${ROOT_DIR}/submodules/stb)
 set(TINYGLTF_INCLUDE_DIR       ${ROOT_DIR}/submodules/tinygltf)
 set(TINYDDSLOADER_INCLUDE_DIR  ${ROOT_DIR}/submodules/tinyddsloader)
+set(SHADERC_INCLUDE_DIR        ${ROOT_DIR}/submodules/shaderc/libshaderc/include)
 
 set(MODULES_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${Vulkan_INCLUDE_DIR}
+        #${Vulkan_INCLUDE_DIR}
         ${GLM_INCLUDE_DIR}
         ${GLFW_INCLUDE_DIR}
         ${IMGUI_INCLUDE_DIR}
@@ -48,6 +49,7 @@ set(MODULES_DIR
         ${STB_INCLUDE_DIR}
         ${TINYGLTF_INCLUDE_DIR}
         ${TINYDDSLOADER_INCLUDE_DIR}
+        ${SHADERC_INCLUDE_DIR}
 )
 
 set(LINK_LIBS
@@ -57,7 +59,7 @@ set(LINK_LIBS
         spirv-cross-glsl
         glm
         spdlog::spdlog
-
+        shaderc
 )
 
 target_include_directories(ENGINE PUBLIC ${MODULES_DIR})
