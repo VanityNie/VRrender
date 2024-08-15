@@ -19,4 +19,6 @@
 #include"shaderc/shaderc.hpp"
 #include<string_view>
 #include <filesystem>
+#include<future>
+#include<coroutine>
 #endif //VULKANABSTRACTIONLAYER_PCH_H
