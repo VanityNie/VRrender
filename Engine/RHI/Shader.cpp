@@ -34,13 +34,11 @@ std::vector<uint32_t> Shader::read_spvdata(std::string_view file_name)
     }
 }
 
-std::vector<uint32_t> Shader::complie_shader(std::string_view file_name, shaderc_shader_kind kind)
+std::vector<uint32_t> Shader::complie_shader(std::string_view file_name, shaderc_shader_kind kind, const shaderc::CompileOptions& compile_option)
 {
 
     shaderc::Compiler compiler;
-    shaderc::CompileOptions compile_option;
-    compile_option.SetVulkanRulesRelaxed(true);
-    compile_option.SetTargetSpirv(shaderc_spirv_version_1_6);
+   
     
     auto shader_file = reader.ReadAsBinary(file_name);
     
@@ -62,7 +60,7 @@ std::vector<uint32_t> Shader::complie_shader(std::string_view file_name, shaderc
 }
 
 
-Shader::Shader(std::string_view file_name)
+Shader::Shader(std::string_view file_name, shaderc::CompileOptions compile_option)
 {
 	std::filesystem::path fs_path(file_name);
 	auto extension = fs_path.extension().string();
@@ -75,12 +73,14 @@ Shader::Shader(std::string_view file_name)
 		//read spv
 		this->spirv_code = read_spvdata(file_name);
 	}
-	else
-	{
-		//complie to spv
-		this->spirv_code = complie_shader(file_name);
-	}
 
+    //compile glsl data
+    else {
+
+        auto kind = get_shader_kind(extension);
+        this->spirv_code = complie_shader(fs_path.string(), kind, compile_option);
+    }
+	
 
 }
 
@@ -101,3 +101,12 @@ VkShaderModule Shader::create_vk_shader_module(const VkDevice& device) const
 
 	return module;
 }
+
+shaderc_shader_kind Shader::get_shader_kind(const std::string& path)
+{
+
+   return mstages[path];
+}
+
+
+

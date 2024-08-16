@@ -132,7 +132,7 @@ namespace van {
         
 
     private:
-        bool SwapChain::init(VkDevice          device,
+        bool init(VkDevice          device,
             VkPhysicalDevice  physicalDevice,
             VkQueue           queue,
             uint32_t          queueFamilyIndex,

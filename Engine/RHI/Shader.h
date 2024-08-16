@@ -11,20 +11,6 @@ static std::unordered_map<std::string, shaderc_shader_kind> mstages = {
 	{"rmiss", shaderc_miss_shader},
 };
 
-struct DescriptorMeta {
-
-
-};
-
-
-class ShaderFactory
-{
-
-	
-public:
-	
-	
-};
 
 class Shader
 {
@@ -34,8 +20,6 @@ private:
 	VkShaderStageFlags stage_flags;
 	std::string name;
 	std::vector<uint32_t> spirv_code;
-	
-
 	std::string extract_filename(const std::string& path) {
 		std::filesystem::path fs_path(path);
 		// 使用 filesystem::path 的 filename 方法获取文件名
@@ -45,17 +29,19 @@ private:
 
 	std::vector<uint32_t> read_spvdata(std::string_view file_name);
 
-	std::vector<uint32_t> complie_shader(std::string_view file_name, shaderc_shader_kind kind);
-
+	std::vector<uint32_t> complie_shader(std::string_view file_name, shaderc_shader_kind kind, const shaderc::CompileOptions& compile_option);
 
 public:
 
+
+	//shaderc::CompileOptions compile_option;
 	ShaderReader reader{};
-	
-	Shader(std::string_view file_name);
+	Shader(std::string_view file_name, shaderc::CompileOptions compile_option);
 
 	auto get_spirv_code() { return spirv_code; }
 	VkShaderModule create_vk_shader_module(const VkDevice& device) const;
+	shaderc_shader_kind get_shader_kind(const std::string& path);
+	
 
 	
 };
