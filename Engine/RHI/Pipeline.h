@@ -5,11 +5,11 @@
 class Shader;
 
 
-struct Settings
+struct Setting
 {
 
 	std::vector<Shader> shaders;
-
+	
 
 };
 
@@ -20,10 +20,12 @@ class Pipeline
 private:
 	VkPipeline handle;
 	VkPipelineLayout pipeline_layout;
+	VkPipelineCache pipeline_cache;
 
+	
 
 public:
-	Pipeline()
+	Pipeline(const Setting & setting)
 	{
 
 	}

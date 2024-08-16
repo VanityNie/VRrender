@@ -19,6 +19,7 @@
 #include"shaderc/shaderc.hpp"
 #include<string_view>
 #include <filesystem>
-#include<future>
-#include<coroutine>
+#include<unordered_map>
+#include"spirv.hpp"
+#include"spirv_cross.hpp"
 #endif //VULKANABSTRACTIONLAYER_PCH_H

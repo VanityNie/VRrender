@@ -59,6 +59,54 @@ std::vector<uint32_t> Shader::complie_shader(std::string_view file_name, shaderc
 	
 }
 
+void Shader::reflect_shader(const std::vector<uint32_t> binary_code)
+{
+
+    
+    spirv_cross::Compiler spirv_compiler(binary_code);
+
+    auto sources = spirv_compiler.get_shader_resources();
+
+    //Uniform buffer
+
+    for (const auto& ub_resouce : sources.uniform_buffers)
+    {
+        uint32_t set = spirv_compiler.get_decoration(ub_resouce.id, spv::DecorationDescriptorSet);
+        uint32_t bind = spirv_compiler.get_decoration(ub_resouce.id, spv::DecorationBinding);
+        std::string name = ub_resouce.name;
+        ResourceType type = ResourceType::UniformBuffer;
+
+        
+ 
+        ResourceLayoutInfo info;
+        info.name = name;
+        info.type = type;
+        info.set = set;
+        info.binding = bind;
+
+        resouce_record[set].emplace_back(       
+            info);
+
+    }
+
+
+    //To Do :storage_buffer
+    
+
+    for()
+
+
+    //To Do: push_constant_buffer
+
+
+    //To Do Sample Image
+
+
+
+  
+
+}
+
 
 Shader::Shader(std::string_view file_name, shaderc::CompileOptions compile_option)
 {

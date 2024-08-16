@@ -102,7 +102,7 @@ private:
     void vkExt_destroy_debug_messenger(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger,
                                        const VkAllocationCallbacks* pAllocator);
 
-    std::vector<const char*> VulkanContext::get_req_instance_extensions();
+    std::vector<const char*> get_req_instance_extensions();
 
 
     //queue

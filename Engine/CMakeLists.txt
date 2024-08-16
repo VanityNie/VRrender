@@ -7,7 +7,10 @@ set(ENGINE_ROOT_DIR "${ROOT_DIR}/engine")
 
 file(GLOB RHI_SOURCE CONFIGURE_DEPENDS RHI/*.cpp RHI/*.h)
 
-set(source ${RHI_SOURCE})
+file(GLOB UNTILS_SRC CONFIGURE_DEPENDS Unity/*.cpp Unity/*.h)
+
+
+set(source ${RHI_SOURCE} ${UNTILS_SRC})
 
 message(${source})
 
