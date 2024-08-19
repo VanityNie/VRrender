@@ -32,7 +32,6 @@ public:
     std::vector<uint32_t>ReadAsBinary(std::string_view filename);
     
     //todo 
-    std::future<VkResult>ReadAsync(std::string_view filename);
-
+   
     
 };

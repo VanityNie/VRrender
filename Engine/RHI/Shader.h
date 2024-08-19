@@ -11,6 +11,18 @@ static std::unordered_map<std::string, shaderc_shader_kind> mstages = {
 	{"rmiss", shaderc_miss_shader},
 };
 
+
+static std::unordered_map<shaderc_shader_kind, VkShaderStageFlagBits> shader_stage_maps = {
+	{shaderc_vertex_shader, VK_SHADER_STAGE_VERTEX_BIT},
+	{shaderc_fragment_shader, VK_SHADER_STAGE_FRAGMENT_BIT},
+	{shaderc_compute_shader, VK_SHADER_STAGE_COMPUTE_BIT},
+	{shaderc_raygen_shader, VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+	{shaderc_anyhit_shader, VK_SHADER_STAGE_ANY_HIT_BIT_KHR},
+	{shaderc_closesthit_shader, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+	{shaderc_miss_shader, VK_SHADER_STAGE_MISS_BIT_KHR}
+};
+
+
 enum class ResourceType : uint32_t {
 	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
 	CombinedImageSampler = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -28,6 +40,16 @@ enum class ResourceType : uint32_t {
 	SampleWeightImage = VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM,
 	BlockMatchImage = VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM,
 	Mutable = VK_DESCRIPTOR_TYPE_MUTABLE_EXT
+};
+
+
+
+struct PushConstantSpecification
+{
+	std::string      Name;
+	uint32_t         Size;
+	uint32_t         Offset;
+	VkShaderStageFlagBits Flags;
 };
 
 
@@ -55,7 +77,7 @@ class Shader
 
 private:
 	VkShaderModule shader_module;
-	VkShaderStageFlags stage_flags;
+	VkShaderStageFlagBits stage_flags;
 	std::string name;
 	std::vector<uint32_t> spirv_code;
 	std::string extract_filename(const std::string& path) {
@@ -71,6 +93,10 @@ private:
 	std::vector<uint32_t> read_spvdata(std::string_view file_name);
 	std::vector<uint32_t> complie_shader(std::string_view file_name, shaderc_shader_kind kind, const shaderc::CompileOptions& compile_option);
 
+
+
+	//only one push constant spec 
+	std::vector< PushConstantSpecification>m_push_constant_specification_collection;
 	
 
 	void reflect_shader(const std::vector<uint32_t> binary_code);
@@ -87,6 +113,9 @@ public:
 	VkShaderModule create_vk_shader_module(const VkDevice& device) const;
 	shaderc_shader_kind get_shader_kind(const std::string& path);
 	
+	VkShaderStageFlagBits get_shader_flags(const shaderc_shader_kind& kind) {
+		return shader_stage_maps[kind];
+	}
 
 	
 };
