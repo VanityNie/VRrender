@@ -6,6 +6,11 @@ class Shader;
 
 class RenderPass;
 
+
+
+
+
+
 struct dim3 {
 	uint32_t x = 1;
 	uint32_t y = 1;
@@ -78,6 +83,9 @@ protected:
 	std::mutex mut;
 	std::condition_variable cv;
 
+
+	VkPipelineBindPoint get_bind_point(PipelineType & type);
+
 	virtual void create_set_layout(const std::vector<Shader>& shaders) = 0;
 	virtual void create_pipeline_layout(const std::vector<Shader>& shaders) = 0;
 	virtual void create_update_template(const std::vector<Shader>& shaders) = 0;
@@ -94,8 +102,16 @@ public:
 
 
 
+
 class GfxPipeline : public Pipeline
 {
+
+private:
+
+
+	std::vector<VkDescriptorSetLayout> descriptorset_layouts;
+	
+	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> resource_binding_map;
 
 
 public:
@@ -115,8 +131,6 @@ public:
 
 
 	GfxPipeline() {
-
-		
 		
 		pipeline_type = PipelineType::GFX;
 
@@ -126,5 +140,23 @@ public:
 	void create_set_layout(const std::vector<Shader>& shaders) override;
 	void create_pipeline_layout(const std::vector<Shader>& shaders) override;
 	virtual void create_update_template(const std::vector<Shader>& shaders) override;
+
+};
+
+
+
+
+
+
+class ComputePipeline : public Pipeline
+{
+
+};
+
+
+class RayTracingPipeline : public Pipeline
+
+{
+
 
 };

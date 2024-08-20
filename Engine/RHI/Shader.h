@@ -42,7 +42,9 @@ enum class ResourceType : uint32_t {
 	Mutable = VK_DESCRIPTOR_TYPE_MUTABLE_EXT
 };
 
-
+VkDescriptorType resourceTypeToVkDescriptorType(ResourceType type) {
+	return static_cast<VkDescriptorType>(type);
+}
 
 struct PushConstantSpecification
 {
@@ -55,11 +57,12 @@ struct PushConstantSpecification
 
 struct ResourceLayoutInfo
 {
-	std::string name;
+	std::string name ="null";
 	ResourceType type;
 	uint32_t set;
 	uint32_t binding;
 
+	//VkShaderStageFlagBits flags;
 	ResourceLayoutInfo() = default;
 	ResourceLayoutInfo(std::string _name,ResourceType _type,uint32_t _set, uint32_t _binding):
 		name(_name),type(_type),set(_set),binding(_binding)
@@ -116,6 +119,8 @@ public:
 	VkShaderStageFlagBits get_shader_flags(const shaderc_shader_kind& kind) {
 		return shader_stage_maps[kind];
 	}
-
-	
+	VkShaderStageFlagBits get_shader_flags()const {
+		return stage_flags;
+	}
+	std::unordered_map< uint32_t, std::vector<ResourceLayoutInfo> > get_setlayouts_map() const { return this->resouce_record; }
 };
