@@ -7,6 +7,14 @@
 Device::Device(VulkanContext *context):m_context(context) {
     
   
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = m_context->get_physcial_device();
+    allocatorInfo.device = device;
+    allocatorInfo.instance = m_context->get_instance();
+
+    check(vmaCreateAllocator(&allocatorInfo, &m_memory_alloactor), "Failed to create VMA allocator");
+
+
 
 }
 

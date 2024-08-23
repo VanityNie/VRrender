@@ -122,7 +122,7 @@ private:
    
     
     std::shared_ptr<VulkanContext>m_context;
-
+    
     std::vector<const char*> device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
     void* device_create_chain;

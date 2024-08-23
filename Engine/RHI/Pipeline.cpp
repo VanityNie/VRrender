@@ -74,3 +74,11 @@ void GfxPipeline::create_set_layout(const std::vector<Shader>& shaders)
 
 }
 
+void GfxPipeline::create_pipeline_layout(const std::vector<Shader>& shaders)
+{
+}
+
+void GfxPipeline::create_update_template(const std::vector<Shader>& shaders)
+{
+}
+

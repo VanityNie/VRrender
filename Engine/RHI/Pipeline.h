@@ -124,7 +124,6 @@ public:
 		VkPipelineMultisampleStateCreateInfo multisampling;
 		VkPipelineColorBlendAttachmentState color_blend_attachment;
 		VkPipelineColorBlendStateCreateInfo color_blend;
-		VkPipelineLayoutCreateInfo pipeline_layout_CI;
 		VkPipelineDynamicStateCreateInfo dynamic_state_CI;
 		VkGraphicsPipelineCreateInfo pipeline_CI;
 	} gfx_cis;
