@@ -3,12 +3,19 @@
 
 
 
+
+
+
+
 class RenderPass
 {
 
 
+private:
 
-
-
+public:
+	
+	VkRenderPassCreateInfo info;
+	
 
 };

@@ -24,4 +24,9 @@
 #include"spirv_cross.hpp"
 #include"Unity/help.h"
 #include"Device.h"
+#include"TextureType.h"
+#include"image.h"
+#include"Unity/stb_image.h"
+#include"Buffer.h"
+
 #endif //VULKANABSTRACTIONLAYER_PCH_H

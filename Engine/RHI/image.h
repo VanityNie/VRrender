@@ -2,49 +2,54 @@
 
 
 
-
-
-struct TextureSpecification
+enum class TextureFormat
 {
-    bool          IsUsageSampled = true;
-    bool          IsUsageStorage = false;
-    bool          IsUsageTransfert = true;
-    bool          PerformTransition = true;
-    bool          IsCubemap = false;
-    uint32_t      Width = 0;
-    uint32_t      Height = 0;
-    uint32_t      BytePerPixel = 4;
-    uint32_t      LayerCount = 1;
-
-
+    RGBA8,
+    RGBA16F,
+    RGBA32F,
+    R8,
+    R16F,
+    R32F,
+    Depth24Stencil8,
+    Depth32F
 };
-
 
 class Image
 {
 
 private:
-	VkImage handle;
-};
+    VmaAllocator m_allocator;
+    VkImage m_image = VK_NULL_HANDLE;
+    VmaAllocation m_allocation = VK_NULL_HANDLE;
+    VkImageCreateInfo m_createInfo;
 
-class Texture
-{
-
-
-	
-
-
-};
+public:
+    VkImage GetImage() const { return m_image; }
+    const VkImageCreateInfo& GetCreateInfo() const { return m_createInfo; }
 
 
-class Texture2D : public Texture
-{
+    Image(VmaAllocator allocator, const VkImageCreateInfo& imageInfo, VmaMemoryUsage memoryUsage);
+    ~Image();
 
+    Image(const Image&) = delete;
+    Image(Image&& other)  noexcept : m_allocator(other.m_allocator), m_image(other.m_image), m_allocation(other.m_allocation), m_createInfo(other.m_createInfo)
+    {
+        other.m_image = VK_NULL_HANDLE;
+        other.m_allocation = VK_NULL_HANDLE;
+    }
 
-};
-
-
-class CubMap
-{
-
+    Image& operator=(Image&& other) noexcept
+    {
+        if (this != &other)
+        {
+            vmaDestroyImage(m_allocator, m_image, m_allocation);
+            m_allocator = other.m_allocator;
+            m_image = other.m_image;
+            m_allocation = other.m_allocation;
+            m_createInfo = other.m_createInfo;
+            other.m_image = VK_NULL_HANDLE;
+            other.m_allocation = VK_NULL_HANDLE;
+        }
+        return *this;
+    }
 };
