@@ -22,7 +22,7 @@ void Texture::CreateImageView()
 	
 }
 
-void Texture::LoadFromFile(const std::string& filepath)
+void Texture::LoadFromFile(const std::string& filepath, bool generate_mipmaps)
 {
 
     int width, height, channels;
@@ -31,6 +31,20 @@ void Texture::LoadFromFile(const std::string& filepath)
     if (!pixels) {
         LOG_ERROR("Failed to load texture image!")
     }
+
+    if (generate_mipmaps)
+    {
+        m_specification.MipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+
+    }
+
+    
+    //create image and allocate memory
+    Create(m_device->m_memory_alloactor, m_device->get_device());
+
+
+
+
     VkBufferUsageFlags m_usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     VmaMemoryUsage m_memoryUsage = VMA_MEMORY_USAGE_CPU_TO_GPU;
     VkDeviceSize size = width * height * 4;
@@ -39,11 +53,64 @@ void Texture::LoadFromFile(const std::string& filepath)
 
     void* data;
 
+    //stage buffer get image data
     stage_buffer.CopyToBuffer(pixels, size);
 
 
     stbi_image_free(pixels);
 
+    m_specification.Width = width;
+    m_specification.Height = height;
+  
+
+    //todo copy buffer data to texture command submit 
+
+    VkImageSubresourceRange subresourceRange = {};
+
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = m_specification.MipLevels;
+    subresourceRange.layerCount = 1;
+
+    
+    //todo cpoy command buffer init
+
+    VkCommandBuffer copy_cmd;
+
+
+
+    auto image_usage = GetVulkanUsageFlags();
+
+    tools::set_image_layout(
+        copy_cmd,
+        m_image.get()->GetImage(),
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        subresourceRange
+        );
+
+    //
+    VkBufferImageCopy region{};
+
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+    region.imageSubresource.aspectMask = GetVulkanAspectMask();
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+    region.imageExtent.width = width;
+    region.imageExtent.height = height;
+    region.imageExtent.depth = 1;
+
+
+
+
+    vkCmdCopyBufferToImage(copy_cmd, stage_buffer.GetBuffer(), m_image.get()->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+   
+
+
+    
 
 }
 
@@ -64,6 +131,8 @@ void Texture::Create(VmaAllocator allocator, VkDevice device)
     imageInfo.format = GetVulkanFormat(m_specification.Format);
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    //usage 
     imageInfo.usage = GetVulkanUsageFlags();
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

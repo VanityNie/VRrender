@@ -41,11 +41,9 @@ protected:
 
 public:
 
-    void LoadFromFile(const std::string& filepath);
+    void LoadFromFile(const std::string& filepath,bool generate_mipmaps);
     Texture(const TextureSpecification& texture_spec, Device  device) : m_specification(texture_spec), m_device(std::make_shared<Device>(device) )
     {
-     
-       
     }
 
 
@@ -56,7 +54,8 @@ public:
         m_sampler = sampler;
     }
 
-
+    
+    void  cmd_generate_mipmaps(const VkImageCreateInfo& info, VkCommandBuffer cmd);
 
     VkImageUsageFlags GetVulkanUsageFlags();
     VkImageViewType GetVulkanViewType();
