@@ -7,6 +7,21 @@
 #include<vulkan/vulkan.h>
 
 
+
+
+class VulkanSyncronization {
+public:
+	static std::mutex queue_mutex;
+	static std::atomic<uint32_t> available_command_pools;
+	static std::condition_variable cv;
+};
+
+std::mutex VulkanSyncronization::queue_mutex;
+std::atomic<uint32_t> VulkanSyncronization::available_command_pools = std::thread::hardware_concurrency();
+std::condition_variable VulkanSyncronization::cv;
+
+
+
 namespace tools
 {
 
@@ -252,9 +267,38 @@ namespace tools
 			1, &imageMemoryBarrier);
 	}
 
+	inline VkCommandBufferAllocateInfo command_buffer_allocate_info(VkCommandPool commandPool, VkCommandBufferLevel level,
+		uint32_t bufferCount) {
+		VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
+		commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		commandBufferAllocateInfo.commandPool = commandPool;
+		commandBufferAllocateInfo.level = level;
+		commandBufferAllocateInfo.commandBufferCount = bufferCount;
+		return commandBufferAllocateInfo;
+	}
+
+	inline VkCommandPoolCreateInfo command_pool_CI(VkCommandPoolCreateFlags flags = 0) {
+		VkCommandPoolCreateInfo cmdPoolCreateInfo{};
+		cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		cmdPoolCreateInfo.flags = flags;
+		return cmdPoolCreateInfo;
+	}
+
+	inline VkCommandBufferBeginInfo command_buffer_begin_info(VkCommandBufferUsageFlags flags = 0) {
+		VkCommandBufferBeginInfo cmdBufferBeginInfo{};
+		cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmdBufferBeginInfo.pNext = nullptr;
+		cmdBufferBeginInfo.pInheritanceInfo = nullptr;
+		cmdBufferBeginInfo.flags = flags;
+		return cmdBufferBeginInfo;
+	}
 
 
-
+	inline VkCommandBufferInheritanceInfo command_buffer_inheritance_info() {
+		VkCommandBufferInheritanceInfo cmdBufferInheritanceInfo{};
+		cmdBufferInheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		return cmdBufferInheritanceInfo;
+	}
 
 	inline VkSamplerCreateInfo sampler_create_info() {
 		VkSamplerCreateInfo samplerCreateInfo{};

@@ -39,6 +39,8 @@ protected:
     void CreateImageView();
     void CreateSampler();
 
+    //todo lack the command buffer
+
 public:
 
     void LoadFromFile(const std::string& filepath,bool generate_mipmaps);

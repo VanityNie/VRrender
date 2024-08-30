@@ -126,8 +126,10 @@ private:
     std::vector<const char*> device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
     void* device_create_chain;
- 
+    
 
+    //add command pool
+    std::vector<VkCommandPool> cmd_pools;
     std::vector<VkQueue> queues;
 
 
@@ -142,6 +144,9 @@ public:
     DeviceFeatureManager device_feature_manager;
     void create_device();
     VkDevice get_device() { return device; }
+
+    std::vector<VkCommandPool> get_cmd_pools() { return cmd_pools; }
+
     std::shared_ptr<VulkanContext> get_vulkan_context() { return m_context; }
     VmaAllocator m_memory_alloactor;
 };
