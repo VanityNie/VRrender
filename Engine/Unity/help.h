@@ -42,7 +42,30 @@ namespace tools
 	}
 
 
+	inline VkSubmitInfo submit_info() {
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		return submitInfo;
+	}
 
+	inline VkSemaphoreCreateInfo semaphore_create_info() {
+		VkSemaphoreCreateInfo semaphoreCreateInfo{};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		return semaphoreCreateInfo;
+	}
+
+	inline VkFenceCreateInfo fence_create_info(VkFenceCreateFlags flags = 0) {
+		VkFenceCreateInfo fenceCreateInfo{};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.flags = flags;
+		return fenceCreateInfo;
+	}
+
+	inline VkEventCreateInfo event_create_info() {
+		VkEventCreateInfo eventCreateInfo{};
+		eventCreateInfo.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
+		return eventCreateInfo;
+	}
 
 	inline VkCommandBufferAllocateInfo command_buffer_allocate_info(VkCommandPool commandPool, VkCommandBufferLevel level,
 		uint32_t bufferCount) {
@@ -142,8 +165,6 @@ namespace tools
 	
 
 	
-
-
 
 	void set_image_layout(
 		VkCommandBuffer cmdbuffer,

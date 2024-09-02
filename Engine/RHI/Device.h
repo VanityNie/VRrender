@@ -137,6 +137,9 @@ private:
 public:
     explicit Device(VulkanContext* context);
 
+    VkQueue get_spec_queue(QueueType type) {
+        return queues[(int)type];
+    }
 
     VkQueue get_graphic_queue() { return queues[(int)QueueType::GFX]; }
     VkQueue get_compute_queue() { return queues[(int)QueueType::COMPUTE]; }
