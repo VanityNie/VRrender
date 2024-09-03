@@ -42,11 +42,13 @@ void GfxPipeline::create_set_layout(const std::vector<Shader>& shaders)
 		for (auto [set, resources] : data)
 		{
 
-			
 			//add resource binding
 			for (auto resource : resources)
 			{
 
+				//get the descriptor layout num by the set
+				descriptorset_nums = std::max(set, descriptorset_nums);
+				//if has registered , only | shader stage flags 
 				if (resource_binding_map.find(resource.name) != resource_binding_map.end())
 				{
 
@@ -66,16 +68,66 @@ void GfxPipeline::create_set_layout(const std::vector<Shader>& shaders)
 				}
 			}
 
+		
 		}
-
-
+		descriptorset_nums += 1;
 	}
 
+	
+	get_descriptor_bindings(shaders);
+
+
+
+	//descriptor layout 
+	for (auto [set, bindings] : set_binding_map)
+	{
+
+		VkDescriptorSetLayoutCreateInfo createInfo =   tools::descriptorset_layout_create_info(bindings);
+
+		VkDescriptorSetLayout layout{};
+		
+		vkCreateDescriptorSetLayout(m_device->get_device(), &createInfo, nullptr, &layout);
+
+		descriptorset_layouts.push_back(layout);
+		
+	}
 
 }
 
 void GfxPipeline::create_pipeline_layout(const std::vector<Shader>& shaders)
 {
+
+	//get_descriptor_bindings(shaders);
+
+
+
+	VkPipelineLayoutCreateInfo pipeline_layout_create_info{};
+
+	//Todo finish constant ranges
+	//pipeline_layout_create_info.pPushConstantRanges 
+	
+
+	pipeline_layout_create_info.setLayoutCount = descriptorset_nums;
+	pipeline_layout_create_info.pSetLayouts = descriptorset_layouts.data();
+	vkCreatePipelineLayout(m_device->get_device(), &pipeline_layout_create_info, nullptr, &pipeline_layout);
+}
+
+
+//get descriptor set bindings to set_binding_map
+void GfxPipeline::get_descriptor_bindings(const std::vector<Shader>& shaders)
+{
+	for (const auto& shader : shaders)
+	{
+		auto data = shader.get_setlayouts_map();
+
+		for (auto [set, resources] : data)
+		{
+
+			for (auto resource : resources) {
+				set_binding_map[set].push_back(resource_binding_map[resource.name]);
+			}
+		}
+	}
 }
 
 void GfxPipeline::create_update_template(const std::vector<Shader>& shaders)

@@ -71,8 +71,10 @@ struct ResourceLayoutInfo
 
 	}
 
+	friend std::string operator<<(std::ostream& os, const ResourceLayoutInfo& info);
 
 };
+
 
 
 class Shader
@@ -89,7 +91,6 @@ private:
 		return fs_path.filename().string();
 	}
 	VkDevice m_device;
-
 	std::unordered_map< uint32_t, std::vector<ResourceLayoutInfo> > resouce_record;
 
 
@@ -106,7 +107,7 @@ private:
 
 
 public:
-
+	void PrintResourceRecord(const std::unordered_map<uint32_t, std::vector<ResourceLayoutInfo>>& resource_record);
 
 	//shaderc::CompileOptions compile_option;
 	ShaderReader reader{};
@@ -124,3 +125,30 @@ public:
 	}
 	std::unordered_map< uint32_t, std::vector<ResourceLayoutInfo> > get_setlayouts_map() const { return this->resouce_record; }
 };
+
+
+
+
+
+
+std::string ResourceTypeToString(ResourceType type) {
+	switch (type) {
+	case ResourceType::Sampler: return "VK_DESCRIPTOR_TYPE_SAMPLER";
+	case ResourceType::CombinedImageSampler: return "VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER";
+	case ResourceType::SampledImage: return "VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE";
+	case ResourceType::StorageImage: return "VK_DESCRIPTOR_TYPE_STORAGE_IMAGE";
+	case ResourceType::UniformTexelBuffer: return "VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER";
+	case ResourceType::StorageTexelBuffer: return "VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER";
+	case ResourceType::UniformBuffer: return "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER";
+	case ResourceType::StorageBuffer: return "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER";
+	case ResourceType::UniformBufferDynamic: return "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC";
+	case ResourceType::StorageBufferDynamic: return "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC";
+	case ResourceType::InputAttachment: return "VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT";
+	case ResourceType::InlineUniformBlock: return "VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK";
+	case ResourceType::AccelerationStructure: return "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR";
+	case ResourceType::SampleWeightImage: return "VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM";
+	case ResourceType::BlockMatchImage: return "VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM";
+	case ResourceType::Mutable: return "VK_DESCRIPTOR_TYPE_MUTABLE_EXT";
+	default: return "Unknown";
+	}
+}

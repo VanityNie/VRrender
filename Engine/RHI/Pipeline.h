@@ -108,11 +108,15 @@ class GfxPipeline : public Pipeline
 
 private:
 
+	std::shared_ptr<Device> m_device;
 
 	std::vector<VkDescriptorSetLayout> descriptorset_layouts;
 	
 	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> resource_binding_map;
+	std::unordered_map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> set_binding_map;
+	std::vector<VkDescriptorSetLayout> descriptor_set_layouts;
 
+	uint32_t descriptorset_nums{ 0 };
 
 public:
 	struct {
@@ -134,10 +138,13 @@ public:
 		pipeline_type = PipelineType::GFX;
 
 	}
-
 	
+	
+	//get the descirptor layout binding from shaders
 	void create_set_layout(const std::vector<Shader>& shaders) override;
+
 	void create_pipeline_layout(const std::vector<Shader>& shaders) override;
+	void get_descriptor_bindings(const std::vector<Shader>& shaders);
 	virtual void create_update_template(const std::vector<Shader>& shaders) override;
 
 };

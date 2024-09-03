@@ -270,3 +270,28 @@ void Shader::reflect_shader(const std::vector<uint32_t> binary_code)
 
 
 }
+
+void Shader::PrintResourceRecord(const std::unordered_map<uint32_t, std::vector<ResourceLayoutInfo>>& resource_record)
+{
+    for (const auto& pair : resource_record) {
+        const auto& key = pair.first;
+        const auto& resources = pair.second;
+
+        LOG_INFO("Key: " ,key);
+
+        for (const auto& resource : resources) {
+            LOG_INFO(resource);
+        }
+    }
+}
+
+std::string operator<<(std::ostream& os, const ResourceLayoutInfo& info)
+{
+    
+    std::ostringstream ss;
+    ss << "Name: " << info.name
+        << ", Type: " << ResourceTypeToString(info.type)
+        << ", Set: " << info.set
+        << ", Binding: " << info.binding;
+    return ss.str();
+}
