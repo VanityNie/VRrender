@@ -92,6 +92,22 @@ void GfxPipeline::create_set_layout(const std::vector<Shader>& shaders)
 		
 	}
 
+
+
+	//push constant 
+	uint32_t idx = 0;
+	for (const auto& shader : shaders)
+	{
+
+		auto push_constant = shader.get_pushconstant_collctions();
+		VkPushConstantRange range{};
+		range.stageFlags = push_constant.Flags;
+		range.offset = push_constant.Offset;
+		range.size = push_constant.Size;
+
+		push_constant_ranges.emplace_back(range);
+	}
+
 }
 
 void GfxPipeline::create_pipeline_layout(const std::vector<Shader>& shaders)
@@ -106,8 +122,11 @@ void GfxPipeline::create_pipeline_layout(const std::vector<Shader>& shaders)
 	//Todo finish constant ranges
 	//pipeline_layout_create_info.pPushConstantRanges 
 	
+	pipeline_layout_create_info.pPushConstantRanges = push_constant_ranges.data();
+	pipeline_layout_create_info.pushConstantRangeCount = push_constant_ranges.size();
+	pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 
-	pipeline_layout_create_info.setLayoutCount = descriptorset_nums;
+	pipeline_layout_create_info.setLayoutCount = descriptorset_layouts.size();
 	pipeline_layout_create_info.pSetLayouts = descriptorset_layouts.data();
 	vkCreatePipelineLayout(m_device->get_device(), &pipeline_layout_create_info, nullptr, &pipeline_layout);
 }
@@ -132,5 +151,17 @@ void GfxPipeline::get_descriptor_bindings(const std::vector<Shader>& shaders)
 
 void GfxPipeline::create_update_template(const std::vector<Shader>& shaders)
 {
+	std::vector<VkDescriptorUpdateTemplateEntry> entries;
+	VkDescriptorUpdateTemplateCreateInfo template_create_info = {
+		VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO };
+
+
+
+	for (auto [a, b] : resource_binding_map)
+	{
+
+	}
+
+	
 }
 

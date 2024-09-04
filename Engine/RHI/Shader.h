@@ -48,7 +48,7 @@ VkDescriptorType resourceTypeToVkDescriptorType(ResourceType type) {
 
 struct PushConstantSpecification
 {
-	std::string      Name;
+	uint32_t			 id;
 	uint32_t         Size;
 	uint32_t         Offset;
 	VkShaderStageFlagBits Flags;
@@ -81,6 +81,9 @@ class Shader
 {
 
 private:
+	
+	static uint16_t default_vertex_input_binding;
+private:
 	VkShaderModule shader_module;
 	VkShaderStageFlagBits stage_flags;
 	std::string name;
@@ -97,18 +100,20 @@ private:
 	std::vector<uint32_t> read_spvdata(std::string_view file_name);
 	std::vector<uint32_t> complie_shader(std::string_view file_name, shaderc_shader_kind kind, const shaderc::CompileOptions& compile_option);
 
-
+	
+	//vertex input attchment
+	std::vector<VkVertexInputAttributeDescription> vertex_input_attributs;
 
 	//only one push constant spec 
-	std::vector< PushConstantSpecification>m_push_constant_specification_collection;
+	 PushConstantSpecification m_push_constant_specification_collection;
 	
-
+	VkPipelineVertexInputStateCreateInfo  vertex_input_state{};
 	void reflect_shader(const std::vector<uint32_t> binary_code);
 
-
-public:
 	void PrintResourceRecord(const std::unordered_map<uint32_t, std::vector<ResourceLayoutInfo>>& resource_record);
-
+public:
+	bool isVertex = false;
+	void debug() { PrintResourceRecord(this->resouce_record); }
 	//shaderc::CompileOptions compile_option;
 	ShaderReader reader{};
 	Shader(std::string_view file_name, shaderc::CompileOptions compile_option);
@@ -123,7 +128,13 @@ public:
 	VkShaderStageFlagBits get_shader_flags()const {
 		return stage_flags;
 	}
+	VkPipelineVertexInputStateCreateInfo get_pipeline() const {
+			return vertex_input_state;
+		
+	}
+
 	std::unordered_map< uint32_t, std::vector<ResourceLayoutInfo> > get_setlayouts_map() const { return this->resouce_record; }
+	 PushConstantSpecification get_pushconstant_collctions() const { return this->m_push_constant_specification_collection; }
 };
 
 

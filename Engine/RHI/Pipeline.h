@@ -75,7 +75,7 @@ protected:
 
 	VkDescriptorUpdateTemplate update_template = nullptr;
 	VkShaderStageFlags pc_stages = 0;
-	uint32_t push_constant_size = 0;
+
 
 	std::string name;
 
@@ -83,6 +83,26 @@ protected:
 	std::mutex mut;
 	std::condition_variable cv;
 
+
+	size_t get_desc_info_size(VkDescriptorType type) {
+		switch (type) {
+		case VK_DESCRIPTOR_TYPE_SAMPLER:
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+		case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+			return sizeof(VkDescriptorImageInfo);
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+			return sizeof(VkDescriptorBufferInfo);
+		case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+			return sizeof(VkWriteDescriptorSetAccelerationStructureKHR);
+
+		default:
+			LOG_ERROR("Unimplemented descriptor type!");
+			return (size_t)0;
+
+		};
+	}
 
 	VkPipelineBindPoint get_bind_point(PipelineType & type);
 
@@ -115,6 +135,9 @@ private:
 	std::unordered_map<std::string, VkDescriptorSetLayoutBinding> resource_binding_map;
 	std::unordered_map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> set_binding_map;
 	std::vector<VkDescriptorSetLayout> descriptor_set_layouts;
+	std::vector<VkPushConstantRange>push_constant_ranges;
+
+
 
 	uint32_t descriptorset_nums{ 0 };
 
